@@ -9,6 +9,7 @@ from datetime import datetime
 from django.views import View
 from django.http import JsonResponse, HttpResponse, QueryDict
 from django.core.files.storage import FileSystemStorage
+from django.core import serializers
 
 from .models import (
     PlaceImage,
@@ -66,19 +67,8 @@ class ImageSearchHistoryView(View):
         if request.user.is_authenticated:
             pk = request.user.pk
             places = PlaceImage(user=pk).order_by("-created_at")[:20]
-
-            result = []
-            for place in places:
-                result.append(
-                    {
-                        "id": place.id,
-                        "place_name": place.place_name,
-                        "image": place.image,
-                        "user": place.user,
-                        "created_at": place.created_at,
-                    }
-                )
-            return JsonResponse({"places": result}, status=200)
+            serialized_places = serializers.serialize("json", places)
+            return HttpResponse(serialized_places, status=200)
         else:
             JsonResponse({"message": "UNAUTHURIZED"}, status=401)
 
