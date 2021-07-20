@@ -10,7 +10,7 @@ from django.views import View
 from django.http import JsonResponse, HttpResponse, QueryDict
 from django.core.files.storage import FileSystemStorage
 from django.core import serializers
-
+from django.db.models import Q
 from .models import (
     PlaceImage,
     KakaoPlace,
@@ -69,6 +69,26 @@ class ImageSearchHistoryView(View):
             places = PlaceImage(user=pk).order_by("-created_at")[:20]
             serialized_places = serializers.serialize("json", places)
             return HttpResponse(serialized_places, status=200)
+        else:
+            JsonResponse({"message": "UNAUTHURIZED"}, status=401)
+
+
+class ImageCurationView(View):
+    def get(self, request):
+        place = request.GET.get("place")
+        if request.user.is_authenticated:
+            # 내가 아닌 다른 사람이 올린 사진 가져오기 일단 20개만
+            try:
+                # QuerySet
+                other_places = PlaceImage.objects.filter(
+                    ~Q(user=request.user) & Q(place_name=place)
+                )[:20]
+            except:
+                other_places = PlaceImage.objects.filter(
+                    ~Q(user=request.user) & Q(place_name=place)
+                )
+            serializered_place = serializers.serialize("json", other_places)
+            return HttpResponse(serializered_place, status=200)
         else:
             JsonResponse({"message": "UNAUTHURIZED"}, status=401)
 
