@@ -2,6 +2,7 @@ FROM python:3.8-slim-buster
 
 # working dir
 WORKDIR /usr/src/app
+RUN apt-get update
 
 # environment variable
 # no pyc
