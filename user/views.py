@@ -1,8 +1,8 @@
 from django.views import View
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 
 from .models import User
-from .utils import OauthKakao
+from .utils import OauthKakao, OauthGoogle
 from django.forms.models import model_to_dict
 
 
@@ -26,20 +26,26 @@ class LoginView(View):
                 valid_result = kakao.get_access_token_info(access_token=token)
                 if valid_result['code'] == 200:
                     user_info = kakao.get_user_info(access_token=token)
-                    user_data['id'] = user_info['id']
+                    user_data['id'] = str(user_info['id'])
                     user_data['nickname'] = user_info['properties']['nickname']
                 else:
-                    return JsonResponse({'message': valid_result['message']}, status=400)
+                    return JsonResponse({'MESSAGE': valid_result['message']}, status=400)
 
             elif social_type == 'google':
-                pass
+                google = OauthGoogle()
+                valid_result = google.get_access_token_info(access_token=token)
+                if valid_result['code'] == 200:
+                    user_info = google.get_user_info(access_token=token)
+                    user_data['id'] = user_info['id']
+                    user_data['nickname'] = user_info['name']
+                else:
+                    return JsonResponse({'MESSAGE': valid_result['message']}, status=400)
 
-            elif social_type == 'naver':
+            elif social_type == 'apple':
                 pass
 
             else:
                 return JsonResponse({'message': 'INVALID_SOCIAL_TYPE'}, status=400)
-
             # sign in
             user = User.objects.filter(social_type=user_data['social_type'], social_id=user_data['id'])
             if user.exists():
