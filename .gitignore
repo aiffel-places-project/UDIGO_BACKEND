@@ -386,3 +386,5 @@ tags
 media/
 server_settings.py
 */migrations
+
+.dockerignore
