@@ -9,6 +9,7 @@ from .views import (
     PlaceLikeView,
     UserLikeView,
     ImageSearchHistoryView,
+    ImageCurationView,
 )
 
 urlpatterns = [
@@ -18,5 +19,6 @@ urlpatterns = [
     path("/like", PlaceLikeView.as_view()),
     path("/user/like", UserLikeView.as_view()),
     path("/history", ImageSearchHistoryView.as_view()),
+    path("/curation", ImageCurationView.as_view()),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
