@@ -17,10 +17,7 @@ services:
       - media_volume:/usr/src/app/media
     expose: 
       - 8000
-<<<<<<< HEAD
     env_file:
       - ./.env.production
-=======
->>>>>>> 4a429ea5319a0c9680473799fc7035eb89486f7c
 volumes: 
   media_volume:
