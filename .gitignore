@@ -388,3 +388,5 @@ server_settings.py
 */migrations
 
 .dockerignore
+
+.env.production
