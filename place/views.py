@@ -32,15 +32,21 @@ model = load_model("place/model/efn_b0_224_na_5-0.43-0.90.h5")
 
 # image upload & classification
 class Classification(View):
-    def inference(self, image_path):
-        test = cv2.imdecode(
-            np.fromstring(image_path.read(), np.uint8), cv2.IMREAD_UNCHANGED
-        )
-        test = cv2.cvtColor(test, cv2.COLOR_BGR2RGB)
-        test = cv2.resize(test, (224, 224))
+    # 추론 함수
+    def _inference(self, image_path):
+        test = self._resize_image(image_path, 224)
         test = test[np.newaxis, :, :, :]
         pred = model.predict(test, batch_size=1)
         return np.argmax(pred)
+
+    # 이미지 리사이즈 함수
+    def _resize_image(self, image_path, size):
+        image = cv2.imdecode(
+            np.fromstring(image_path.read(), np.uint8), cv2.IMREAD_UNCHANGED
+        )
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        image = cv2.resize(image, (size, size))
+        return image
 
     def post(self, request):
         """
@@ -49,19 +55,23 @@ class Classification(View):
         img = request.FILES["image"]
 
         # 이미지 전처리 및 예측
-        pred_index = str(self.inference(img))
+        pred_index = str(self._inference(img))
         pred = label_info[pred_index]
         sen = random.choice(pred["sentence"])
 
+        # 이미지 사이즈 줄여서 저장
+        resized_image = self._resize_image(img, 600)
+
         # 유저가 올린 데이터를 저장
         user = User.objects.get(pk=request.user.pk)
-        place = PlaceImage(place_name=pred["category"], image=img, user=user)
+        place = PlaceImage(place_name=pred["category"], image=resized_image, user=user)
         place.save()
 
         return JsonResponse({"name": pred["category"], "sentence": sen}, status=200)
 
 
 class ImageSearchHistoryView(View):
+    @login_decorator
     def get(self, request):
         # 히스토리는 본인만 볼 수 있음
         if request.user.is_authenticated:
@@ -74,6 +84,7 @@ class ImageSearchHistoryView(View):
 
 
 class ImageCurationView(View):
+    @login_decorator
     def get(self, request):
         place = request.GET.get("place")
         if request.user.is_authenticated:
