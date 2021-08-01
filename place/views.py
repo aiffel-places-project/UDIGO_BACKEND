@@ -48,7 +48,6 @@ class Classification(View):
         image = cv2.resize(image, (size, size))
         return image
 
-    @login_decorator
     def post(self, request):
         """
         기능 추가 - 내가 검색했던 내용 볼 수 있게끔? > 예측결과도 저장
@@ -63,10 +62,13 @@ class Classification(View):
         # 이미지 사이즈 줄여서 저장
         resized_image = self._resize_image(img, 600)
 
-        # 유저가 올린 데이터를 저장
-        user = User.objects.get(pk=request.user.pk)
-        place = PlaceImage(place_name=pred["category"], image=resized_image, user=user)
-        place.save()
+        try:
+            # 유저가 올린 데이터를 저장
+            user = User.objects.get(pk=request.user.pk)
+            place = PlaceImage(place_name=pred["category"], image=resized_image, user=user)
+            place.save()
+        except:
+            print("로그인 되어 있지 않음")
 
         return JsonResponse({"name": pred["category"], "sentence": sen}, status=200)
 
