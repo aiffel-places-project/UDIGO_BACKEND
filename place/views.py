@@ -94,8 +94,8 @@ class ImageSearchHistoryDetailView(View):
     def get(self, request, pk):
         if request.user.is_authenticated:
             user = request.user.pk
-            place = PlaceImage.objects.filter(pk=pk)
-            serialized_place = serializers.serialize("json", place)
+            place_queryset = PlaceImage.objects.filter(pk=pk)
+            serialized_place = serializers.serialize("json", place_queryset)
             return HttpResponse(serialized_place, status=200)
         else:
             JsonResponse({"message": "UNAUTHURIZED"}, status=401)
