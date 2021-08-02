@@ -65,7 +65,9 @@ class Classification(View):
         try:
             # 유저가 올린 데이터를 저장
             user = User.objects.get(pk=request.user.pk)
-            place = PlaceImage(place_name=pred["category"], image=resized_image, user=user)
+            place = PlaceImage(
+                place_name=pred["category"], image=resized_image, user=user
+            )
             place.save()
         except:
             print("로그인 되어 있지 않음")
@@ -79,11 +81,34 @@ class ImageSearchHistoryView(View):
         # 히스토리는 본인만 볼 수 있음
         if request.user.is_authenticated:
             pk = request.user.pk
-            places = PlaceImage(user=pk).order_by("-created_at")[:20]
-            serialized_places = serializers.serialize("json", places)
+            place_queryset = PlaceImage.objects.filter(user=pk).order_by("-created_at")[
+                :20
+            ]
+            serialized_places = serializers.serialize("json", place_queryset)
             return HttpResponse(serialized_places, status=200)
         else:
             JsonResponse({"message": "UNAUTHURIZED"}, status=401)
+
+
+class ImageSearchHistoryDetailView(View):
+    def get(self, request, pk):
+        if request.user.is_authenticated:
+            user = request.user.pk
+            place = PlaceImage.objects.filter(pk=pk)
+            serialized_place = serializers.serialize("json", place)
+            return HttpResponse(serialized_place, status=200)
+        else:
+            JsonResponse({"message": "UNAUTHURIZED"}, status=401)
+
+    def delete(self, request, pk):
+        if request.user.is_authenticated:
+            user = request.user
+            place = PlaceImage.objects.get(pk=pk)
+            if user.pk == place.user.pk:
+                place.delete()
+                return HttpResponse(status=200)
+            else:
+                return JsonResponse({"message": "FORBIDDEN"}, status=403)
 
 
 class ImageCurationView(View):
