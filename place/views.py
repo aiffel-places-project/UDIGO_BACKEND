@@ -30,15 +30,7 @@ with open("place/model/place_55_label.json", "r", encoding="utf-8-sig") as f:
 model = load_model("place/model/efn_b0_224_na_5-0.43-0.90.h5")
 
 
-# image upload & classification
 class Classification(View):
-    # 추론 함수
-    def _inference(self, image_path):
-        test = self._resize_image(image_path, 224)
-        test = test[np.newaxis, :, :, :]
-        pred = model.predict(test, batch_size=1)
-        return np.argmax(pred)
-
     # 이미지 리사이즈 함수
     def _resize_image(self, image_path, size):
         image = cv2.imdecode(
@@ -48,6 +40,14 @@ class Classification(View):
         image = cv2.resize(image, (size, size))
         return image
 
+    # 추론 함수
+    def _inference(self, image_path):
+        image = self._resize_image(image_path, 600)
+        image2 = cv2.resize(image, (224, 224))
+        image2 = image2[np.newaxis, :, :, :]
+        pred = model.predict(image2, batch_size=1)
+        return str(np.argmax(pred)), image
+
     def post(self, request):
         """
         기능 추가 - 내가 검색했던 내용 볼 수 있게끔? > 예측결과도 저장
@@ -55,12 +55,9 @@ class Classification(View):
         img = request.FILES["image"]
 
         # 이미지 전처리 및 예측
-        pred_index = str(self._inference(img))
+        pred_index, save_image = self._inference(img)
         pred = label_info[pred_index]
         sen = random.choice(pred["sentence"])
-
-        # 이미지 사이즈 줄여서 저장
-        resized_image = self._resize_image(img, 600)
 
         try:
             # 유저가 올린 데이터를 저장
@@ -79,57 +76,45 @@ class ImageSearchHistoryView(View):
     @login_decorator
     def get(self, request):
         # 히스토리는 본인만 볼 수 있음
-        if request.user.is_authenticated:
-            pk = request.user.pk
-            place_queryset = PlaceImage.objects.filter(user=pk).order_by("-created_at")[
-                :20
-            ]
-            serialized_places = serializers.serialize("json", place_queryset)
-            return HttpResponse(serialized_places, status=200)
-        else:
-            JsonResponse({"message": "UNAUTHURIZED"}, status=401)
-
-
-class ImageSearchHistoryDetailView(View):
-    def get(self, request, pk):
-        if request.user.is_authenticated:
-            user = request.user.pk
-            place_queryset = PlaceImage.objects.filter(pk=pk)
-            serialized_place = serializers.serialize("json", place_queryset)
-            return HttpResponse(serialized_place, status=200)
-        else:
-            JsonResponse({"message": "UNAUTHURIZED"}, status=401)
-
-    def delete(self, request, pk):
-        if request.user.is_authenticated:
-            user = request.user
-            place = PlaceImage.objects.get(pk=pk)
-            if user.pk == place.user.pk:
-                place.delete()
-                return HttpResponse(status=200)
-            else:
-                return JsonResponse({"message": "FORBIDDEN"}, status=403)
+        pk = request.user.pk
+        places = PlaceImage(user=pk).order_by("-created_at")[:20]
+        serialized_places = serializers.serialize("json", places)
+        return HttpResponse(serialized_places, status=200)
 
 
 class ImageCurationView(View):
     @login_decorator
     def get(self, request):
         place = request.GET.get("place")
-        if request.user.is_authenticated:
-            # 내가 아닌 다른 사람이 올린 사진 가져오기 일단 20개만
-            try:
-                # QuerySet
-                other_places = PlaceImage.objects.filter(
-                    ~Q(user=request.user) & Q(place_name=place)
-                )[:20]
-            except:
-                other_places = PlaceImage.objects.filter(
-                    ~Q(user=request.user) & Q(place_name=place)
-                )
-            serializered_place = serializers.serialize("json", other_places)
-            return HttpResponse(serializered_place, status=200)
-        else:
-            JsonResponse({"message": "UNAUTHURIZED"}, status=401)
+        # 내가 아닌 다른 사람이 올린 사진 가져오기 일단 20개만
+        try:
+            # QuerySet
+            other_places = PlaceImage.objects.filter(
+                ~Q(user=request.user) & Q(place_name=place)
+            )[:20]
+        except:
+            other_places = PlaceImage.objects.filter(
+                ~Q(user=request.user) & Q(place_name=place)
+            )
+        serializered_place = serializers.serialize("json", other_places)
+        return HttpResponse(serializered_place, status=200)
+
+
+class ImageSearchHistoryDetailView(View):
+    @login_decorator
+    def get(self, request, pk):
+        user = request.user.pk
+        place_queryset = PlaceImage.objects.filter(pk=pk)
+        serialized_place = serializers.serialize("json", place_queryset)
+        return HttpResponse(serialized_place, status=200)
+
+    @login_decorator
+    def delete(self, request, pk):
+        user = request.user
+        place = PlaceImage.objects.get(pk=pk)
+        if user.pk == place.user.pk:
+            place.delete()
+            return HttpResponse(status=200)
 
 
 class PlaceReviewView(View):
