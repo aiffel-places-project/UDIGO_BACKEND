@@ -1,4 +1,8 @@
 import requests
+from google.oauth2 import id_token
+from google.auth.transport import requests
+
+from server_settings import GOOGLE_CLIENT_ID
 
 
 class OauthKakao:
@@ -45,26 +49,12 @@ class OauthKakao:
 
 
 class OauthGoogle:
-    # 토큰 유효성 검사(토큰 정보 보기)
-    def get_access_token_info(self, access_token):
-        headers = {'Authorization': f"Bearer {access_token}"}
-        url = 'https://oauth2.googleapis.com/tokeninfo'
-        response = requests.get(url, headers=headers)
-        data = response.json()
-        result = {
-            'code': response.status_code,
-            'message': data['error'] if response.status_code != 200 else '',
-            'id': data['sub'] if response.status_code == 200 else None
-        }
-        return result
-
-    # 유저 정보 가져오기
-    def get_user_info(self, access_token):
-        headers = {'Authorization': f"Bearer {access_token}"}
-        url = 'https://www.googleapis.com/userinfo/v2/me'
-        response = requests.get(url, headers=headers)
-        response = response.json()
-        return response
+    def get_token_info(self, token):
+        try:
+            idinfo = id_token.verify_oauth2_token(token, requests.Request(), GOOGLE_CLIENT_ID)
+            return {'code': 200, 'id': idinfo['sub'], 'name': idinfo['name']}
+        except ValueError:
+            return {'code': 400, 'message': 'INVALID_TOKEN'}
 
 
 class OauthApple:
