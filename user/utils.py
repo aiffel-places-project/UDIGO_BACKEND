@@ -14,9 +14,9 @@ def login_decorator(func):
 
             if type == "kakao":
                 response = OauthKakao().get_access_token_info(token)
-            elif type == "google":
-                response = OauthGoogle().get_access_token_info(token)
-            elif type == "apple":
+            elif type == 'google':
+                response = OauthGoogle().get_token_info(token)
+            elif type == 'apple':
                 response = OauthApple().get_access_token_info(token)
             else:
                 if "/place/upload" in request.get_raw_uri():
@@ -26,10 +26,9 @@ def login_decorator(func):
                         {"message": "INVALID_VALUE"}, status=400
                     )  # INVALID_TYPE
 
-            if response["code"] == 200:
-                if response["id"] is not None:
-                    user = User.objects.get(social_id=response["id"])
-                    request.user = user
+            if response['code'] == 200:
+                user = User.objects.get(social_type=type, social_id=response['id'])
+                request.user = user
                 return func(self, request, *args, **kwargs)
             else:
                 return JsonResponse({"message": response["message"]}, status=400)
