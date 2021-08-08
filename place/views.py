@@ -2,8 +2,9 @@
 import cv2
 import json
 import random
+import io
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageOps
 from pathlib import Path
 from datetime import datetime
 from django.views import View
@@ -48,6 +49,7 @@ class Classification(View):
         pred = model.predict(image2, batch_size=1)
         return str(np.argmax(pred)), image
 
+    @login_decorator
     def post(self, request):
         """
         기능 추가 - 내가 검색했던 내용 볼 수 있게끔? > 예측결과도 저장
@@ -59,12 +61,14 @@ class Classification(View):
         pred = label_info[pred_index]
         sen = random.choice(pred["sentence"])
 
+        # user = User.objects.get(id=4)
+        # place = PlaceImage(place_name=pred["category"], image=img, user=user)
+        # place.save()
+        # print(place.image)
         try:
             # 유저가 올린 데이터를 저장
-            user = User.objects.get(pk=request.user.pk)
-            place = PlaceImage(
-                place_name=pred["category"], image=resized_image, user=user
-            )
+            user = User.objects.get(id=request.user.id)
+            place = PlaceImage(place_name=pred["category"], image=img, user=user)
             place.save()
         except:
             print("로그인 되어 있지 않음")
