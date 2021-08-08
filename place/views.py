@@ -55,16 +55,11 @@ class Classification(View):
         기능 추가 - 내가 검색했던 내용 볼 수 있게끔? > 예측결과도 저장
         """
         img = request.FILES["image"]
-
         # 이미지 전처리 및 예측
         pred_index, save_image = self._inference(img)
         pred = label_info[pred_index]
         sen = random.choice(pred["sentence"])
 
-        # user = User.objects.get(id=4)
-        # place = PlaceImage(place_name=pred["category"], image=img, user=user)
-        # place.save()
-        # print(place.image)
         try:
             # 유저가 올린 데이터를 저장
             user = User.objects.get(id=request.user.id)

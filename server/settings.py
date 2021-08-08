@@ -154,19 +154,18 @@ CORS_ALLOW_HEADERS = (
     "x-csrftoken",
     "x-requested-with",
 )
-
 # 각 media 파일에 대한 URL Prefix
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-# DEFAULT_FILE_STORAGE = "server.storages.S3MediaStorage"
+DEFAULT_FILE_STORAGE = "server.storages.S3MediaStorage"
 
-# AWS_ACCESS_KEY_ID = server_settings.AWS_SECRET_ACCESS_KEY
-# AWS_SECRET_ACCESS_KEY = server_settings.AWS_SECRET_ACCESS_KEY
-# AWS_STORAGE_BUCKET_NAME = server_settings.AWS_STORAGE_BUCKET_NAME
-# AWS_AUTO_CREATE_BUCKET = True
-# AWS_S3_REGION_NAME = server_settings.AWS_S3_REGION_NAME
-# AWS_S3_CUSTOM_DOMAIN = (
-#     f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com"
-# )
-# AWS_BUCKET_ACL = server_settings.AWS_BUCKET_ACL
+AWS_ACCESS_KEY_ID = "AKIAUMS2NY6JCQSY4FWS"
+AWS_SECRET_ACCESS_KEY = "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"
+AWS_STORAGE_BUCKET_NAME = server_settings.AWS_STORAGE_BUCKET_NAME
+AWS_AUTO_CREATE_BUCKET = True
+AWS_S3_REGION_NAME = server_settings.AWS_S3_REGION_NAME
+AWS_S3_CUSTOM_DOMAIN = (
+    f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com"
+)
+AWS_BUCKET_ACL = server_settings.AWS_BUCKET_ACL

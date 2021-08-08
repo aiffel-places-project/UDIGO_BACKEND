@@ -1,7 +1,4 @@
 from django.urls import path
-from django.conf.urls.static import static
-
-from server import settings
 from .views import (
     Classification,
     PlaceReviewView,
@@ -21,4 +18,3 @@ urlpatterns = [
     path("/history", ImageSearchHistoryView.as_view()),
     path("/curation", ImageCurationView.as_view()),
 ]
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
