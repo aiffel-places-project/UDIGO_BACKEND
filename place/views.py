@@ -55,16 +55,11 @@ class Classification(View):
         기능 추가 - 내가 검색했던 내용 볼 수 있게끔? > 예측결과도 저장
         """
         img = request.FILES["image"]
-
         # 이미지 전처리 및 예측
         pred_index, save_image = self._inference(img)
         pred = label_info[pred_index]
         sen = random.choice(pred["sentence"])
 
-        # user = User.objects.get(id=4)
-        # place = PlaceImage(place_name=pred["category"], image=img, user=user)
-        # place.save()
-        # print(place.image)
         try:
             # 유저가 올린 데이터를 저장
             user = User.objects.get(id=request.user.id)
@@ -107,7 +102,7 @@ class ImageCurationView(View):
 class ImageSearchHistoryDetailView(View):
     @login_decorator
     def get(self, request, pk):
-        user = request.user.pk
+        # user = request.user.id
         place_queryset = PlaceImage.objects.filter(pk=pk)
         serialized_place = serializers.serialize("json", place_queryset)
         return HttpResponse(serialized_place, status=200)
@@ -116,7 +111,7 @@ class ImageSearchHistoryDetailView(View):
     def delete(self, request, pk):
         user = request.user
         place = PlaceImage.objects.get(pk=pk)
-        if user.pk == place.user.pk:
+        if user.pk == place.user.id:
             place.delete()
             return HttpResponse(status=200)
 
@@ -127,7 +122,6 @@ class PlaceReviewView(View):
         place_type = request.GET.get("type")
         offset = int(request.GET.get("offset", 0))
         limit = int(request.GET.get("limit", 10))
-        print(place_type, offset, limit, place_id)
 
         if place_type not in ["kakao", "tour"]:
             return JsonResponse({"message": "INVALID_TYPE"}, status=400)
@@ -310,10 +304,9 @@ class UserReviewView(View):
             return JsonResponse({"message": "INVALID_REVIEW"}, status=400)
 
     @login_decorator
-    def delete(self, request):
+    def delete(self, request, review_id):
         try:
             user = request.user
-            review_id = QueryDict(request.body)["review_id"]
             review = Review.objects.get(id=review_id, user=user)
             review.delete()
             return HttpResponse(status=204)
@@ -336,10 +329,8 @@ class PlaceLikeView(View):
                 return JsonResponse({"message": "INVALID_PLACE_TYPE"}, status=400)
 
             if place_type == "tour":
-                print("tour check")
                 like = UserLikeTourPlace.objects.get(place=place_id, user=user)
             else:
-                print("kakao check")
                 like = UserLikeKakaoPlace.objects.get(place=place_id, user=user)
 
             like.delete()

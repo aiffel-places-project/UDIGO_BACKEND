@@ -2,6 +2,8 @@ from .models import User
 from .oauth import OauthKakao, OauthGoogle, OauthApple
 from django.http import JsonResponse
 
+SOCIAL_TYPE = ['kakao', 'apple', 'google']
+
 
 def login_decorator(func):
     def wrapper(self, request, *args, **kwargs):
@@ -14,9 +16,9 @@ def login_decorator(func):
 
             if type == "kakao":
                 response = OauthKakao().get_access_token_info(token)
-            elif type == 'google':
+            elif type == "google":
                 response = OauthGoogle().get_token_info(token)
-            elif type == 'apple':
+            elif type == "apple":
                 response = OauthApple().get_access_token_info(token)
             else:
                 if "/place/upload" in request.get_raw_uri():
@@ -27,8 +29,9 @@ def login_decorator(func):
                     )  # INVALID_TYPE
 
             if response['code'] == 200:
-                user = User.objects.get(social_type=type, social_id=response['id'])
-                request.user = user
+                if response['id'] is not None:
+                    user = User.objects.get(social_type=SOCIAL_TYPE.index(type), social_id=response['id'])
+                    request.user = user
                 return func(self, request, *args, **kwargs)
             else:
                 return JsonResponse({"message": response["message"]}, status=400)
