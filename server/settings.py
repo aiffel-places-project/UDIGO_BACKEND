@@ -32,7 +32,7 @@ ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     # 'django.contrib.admin',
-    # 'django.contrib.auth',
+    # "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
@@ -49,7 +49,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     # 'django.middleware.csrf.CsrfViewMiddleware',
-    # 'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -159,14 +159,14 @@ CORS_ALLOW_HEADERS = (
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-DEFAULT_FILE_STORAGE = "server.storages.S3MediaStorage"
+# DEFAULT_FILE_STORAGE = "server.storages.S3MediaStorage"
 
-AWS_ACCESS_KEY_ID = server_settings.AWS_SECRET_ACCESS_KEY
-AWS_SECRET_ACCESS_KEY = server_settings.AWS_SECRET_ACCESS_KEY
-AWS_STORAGE_BUCKET_NAME = server_settings.AWS_STORAGE_BUCKET_NAME
-AWS_AUTO_CREATE_BUCKET = True
-AWS_S3_REGION_NAME = server_settings.AWS_S3_REGION_NAME
-AWS_S3_CUSTOM_DOMAIN = (
-    f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com"
-)
-AWS_BUCKET_ACL = server_settings.AWS_BUCKET_ACL
+# AWS_ACCESS_KEY_ID = server_settings.AWS_SECRET_ACCESS_KEY
+# AWS_SECRET_ACCESS_KEY = server_settings.AWS_SECRET_ACCESS_KEY
+# AWS_STORAGE_BUCKET_NAME = server_settings.AWS_STORAGE_BUCKET_NAME
+# AWS_AUTO_CREATE_BUCKET = True
+# AWS_S3_REGION_NAME = server_settings.AWS_S3_REGION_NAME
+# AWS_S3_CUSTOM_DOMAIN = (
+#     f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com"
+# )
+# AWS_BUCKET_ACL = server_settings.AWS_BUCKET_ACL

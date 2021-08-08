@@ -3,7 +3,6 @@ from user.models import User
 
 # Image 저장을 위한 Model
 class PlaceImage(models.Model):
-    id = models.BigIntegerField(primary_key=True)
     place_name = models.CharField(max_length=20)
     image = models.ImageField(upload_to="places/%Y/%m/%d", blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
