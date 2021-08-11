@@ -75,8 +75,8 @@ class ImageSearchHistoryView(View):
     @login_decorator
     def get(self, request):
         # 히스토리는 본인만 볼 수 있음
-        pk = request.user.pk
-        places = PlaceImage(user=pk).order_by("-created_at")[:20]
+        user = request.user
+        places = PlaceImage.objects.filter(user=user).order_by("-created_at")[:20]
         serialized_places = serializers.serialize("json", places)
         return HttpResponse(serialized_places, status=200)
 
