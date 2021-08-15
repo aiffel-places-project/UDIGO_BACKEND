@@ -58,7 +58,8 @@ class OauthGoogle:
                 token, google_request.Request(), os.environ.get("GOOGLE_CLIENT_ID")
             )
             return {"code": 200, "id": idinfo["sub"], "name": idinfo["name"]}
-        except ValueError:
+        except ValueError as e:
+            print(e)
             return {"code": 400, "message": "INVALID_TOKEN"}
 
 
