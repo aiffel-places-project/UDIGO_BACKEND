@@ -60,6 +60,8 @@ class Classification(View):
         pred = label_info[pred_index]
         sen = random.choice(pred["sentence"])
 
+        img.name = pred["category"] + str(np.random.randint(0, 9999999))
+
         try:
             # 유저가 올린 데이터를 저장
             user = User.objects.get(id=request.user.id)
@@ -78,13 +80,16 @@ class ImageSearchHistoryView(View):
         user = request.user
         places = PlaceImage.objects.filter(user=user).order_by("-created_at")[:20]
         # serialized_places = serializers.serialize("json", places)
-        histories = [{
-            "history_id": place.id,
-            "place_name": place.place_name,
-            "image": place.image.url,
-            "created_at": place.created_at.strftime("%Y-%m-%d %H:%M:%S")
-        } for place in places]
-        return JsonResponse({'histories': histories}, status=200)
+        histories = [
+            {
+                "history_id": place.id,
+                "place_name": place.place_name,
+                "image": place.image.url,
+                "created_at": place.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            }
+            for place in places
+        ]
+        return JsonResponse({"histories": histories}, status=200)
 
 
 class ImageCurationView(View):
