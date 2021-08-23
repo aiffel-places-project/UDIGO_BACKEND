@@ -60,7 +60,7 @@ class Classification(View):
         pred = label_info[pred_index]
         sen = random.choice(pred["sentence"])
 
-        img.name = pred["category"] + str(np.random.randint(0, 9999999))
+        img.name = pred["category"] + "_" + str(np.random.randint(0, 9999999))
 
         try:
             # 유저가 올린 데이터를 저장
