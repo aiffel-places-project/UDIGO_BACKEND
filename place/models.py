@@ -1,10 +1,13 @@
 from django.db import models
 from user.models import User
+from django_resized import ResizedImageField
 
 # Image 저장을 위한 Model
 class PlaceImage(models.Model):
     place_name = models.CharField(max_length=20)
-    image = models.ImageField(upload_to="places/%Y/%m/%d", blank=True)
+    image = ResizedImageField(
+        size=[600, 600], quality=95, upload_to="places/%Y/%m/%d", blank=True
+    )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
