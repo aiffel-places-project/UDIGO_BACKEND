@@ -106,8 +106,11 @@ class ImageCurationView(View):
             other_places = PlaceImage.objects.filter(
                 ~Q(user=request.user) & Q(place_name=place)
             )
+
         serializered_place = serializers.serialize("json", other_places)
-        return HttpResponse(serializered_place, status=200)
+        return HttpResponse(
+            serializered_place, content_type="application/json", status=200
+        )
 
 
 class ImageSearchHistoryDetailView(View):
