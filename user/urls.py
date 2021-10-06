@@ -1,7 +1,7 @@
 from django.urls import path
 
-from .views import LoginView
+from .views import LoginViewSet
 
 urlpatterns = [
-    path('/login', LoginView.as_view()),
+    path('/login', LoginViewSet.as_view()),
 ]
