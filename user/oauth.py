@@ -26,7 +26,9 @@ class OauthKakao:
             else 200
         }
         if response.status_code == 200:
-            result["id"] = data["id"]
+            result["id"] = str(data["id"])
+            user_info = self.get_user_info(access_token)
+            result['nickname'] = user_info['properties']['nickname']
         elif data["code"] == -401:  # 유효하지 않은 앱키나 액세스 토큰으로 요청한 경우
             result["message"] = "EXPIRED_KAKAO_TOKEN"
         elif data["code"] == -1:  # 카카오 플랫폼 서비스의 일시적 내부 장애 상태
@@ -57,7 +59,7 @@ class OauthGoogle:
             idinfo = id_token.verify_oauth2_token(
                 token, google_request.Request(), os.environ.get("GOOGLE_CLIENT_ID")
             )
-            return {"code": 200, "id": idinfo["sub"], "name": idinfo["name"]}
+            return {"code": 200, "id": idinfo["sub"], "nickname": idinfo["name"]}
         except ValueError as e:
             print(e)
             return {"code": 400, "message": "INVALID_TOKEN"}
